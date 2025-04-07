@@ -262,10 +262,24 @@ def _get_task_by_id(task_id):
 
 
 def is_zim_file_ready(task_id):
-  data = _get_task_by_id(task_id)
-  if data is None:
-    # Some kind of HTTP error (could be 404 if the task hasn't moved
-    # from requested-tasks to tasks yet). Ignore and we'll retry.
+    data = _get_task_by_id(task_id)
+    if data is None:
+        # Some kind of HTTP error (could be 404 if the task hasn't moved
+        # from requested-tasks to tasks yet). Ignore and we'll retry.
+        return 'REQUESTED'
+
+    if data.get('status') == 'failed':
+        return 'FAILED'
+
+    files = data.get('files', {})
+
+    for key, value in files.items():
+      //CASE_INSENSITIVE STATUS CHECK
+        status = file_data.get('status', '').lower()
+        if status == 'uploaded':
+            return 'FILE_READY'
+        elif status in ('success', 'completed'):
+            return 'REQUESTED'
     return 'REQUESTED'
 
   if data.get('status') == 'failed':
